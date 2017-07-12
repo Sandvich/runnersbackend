@@ -10,6 +10,7 @@ class BaseConfig(object):
     TESTING = False
     # sqlite :memory: identifier is the default if no filepath is present
     SQLALCHEMY_DATABASE_URI = 'sqlite://'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = '1d654586-e830-431b-b21e-325744c3317b'
     LOGGING_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     LOGGING_LOCATION = 'runnershub.log'
@@ -23,6 +24,8 @@ class BaseConfig(object):
     SUPPORTED_LANGUAGES = {'en': 'English'}
     BABEL_DEFAULT_LOCALE = 'en'
     BABEL_DEFAULT_TIMEZONE = 'UTC'
+    SECURITY_TOKEN_AUTHENTICATION_HEADER = 'Auth'
+    SECURITY_TOKEN_MAX_AGE = 12*60*60
 
 
 class DevelopmentConfig(BaseConfig):
@@ -58,5 +61,12 @@ def configure_app(app):
     # Configure Security
     user_datastore = SQLAlchemyUserDatastore(db, User, Role)
     app.security = Security(app, user_datastore)
+    @app.before_first_request
+    def create_superuser():
+        db.create_all()
+        user_datastore.create_role(name="Admin", description="Site Administrator")
+        user_datastore.create_role(name="GM", description="Hub GM (may also be a player)")
+        user_datastore.create_role(name="Player", description="Hub Player")
+        user_datastore.create_user(email="sanchitsharma1@gmail.com", password="password")
     # Configure Compressing
     Compress(app)
