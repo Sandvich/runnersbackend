@@ -2,8 +2,9 @@ FROM python:3.5-alpine
 
 COPY . /app
 
-RUN apk add --no-cache add musl-dev linux-headers g++
+RUN apk --update add musl-dev linux-headers g++ openssl libffi-dev \
+	&& pip install -r /app/requirements.txt \
+	&& rm /var/cache/apk/* \
+	&& python /app/seed.py
 
-RUN pip install -r /app/requirements.txt && /app/seed.py
-
-CMD /app/run.py
+CMD python /app/run.py
