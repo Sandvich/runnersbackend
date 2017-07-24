@@ -38,7 +38,7 @@ class DevelopmentConfig(BaseConfig):
 class TestingConfig(BaseConfig):
     DEBUG = False
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///app/test.db')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///app/test.db'
 	LOGGING_LOCATION = os.getenv('OPENSHIFT_LOG_DIR', '/app/backend.log')
     SECRET_KEY = 'testing-sekrit'
 
