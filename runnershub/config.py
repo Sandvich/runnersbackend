@@ -12,7 +12,7 @@ class BaseConfig(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = '1d654586-e830-431b-b21e-325744c3317b'
     LOGGING_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    LOGGING_LOCATION = 'runnershub.log'
+    LOGGING_LOCATION = 'backend.log'
     LOGGING_LEVEL = logging.DEBUG
     SECURITY_CONFIRMABLE = False
     CACHE_TYPE = 'simple'
@@ -38,7 +38,8 @@ class DevelopmentConfig(BaseConfig):
 class TestingConfig(BaseConfig):
     DEBUG = False
     TESTING = True
-    #SQLALCHEMY_DATABASE_URI = 'sqlite://'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///app/test.db')
+	LOGGING_LOCATION = os.getenv('OPENSHIFT_LOG_DIR', '/app/backend.log')
     SECRET_KEY = 'testing-sekrit'
 
 config = {
@@ -63,14 +64,6 @@ def configure_app(app):
     # Configure Security
     user_datastore = SQLAlchemyUserDatastore(db, User, Role)
     app.security = Security(app, user_datastore)
-    #@app.before_first_request
-    #def setup():
-        #db.create_all()
-        #admin = user_datastore.create_role(name="Admin", description="Site Administrator")
-        #user_datastore.create_role(name="GM", description="Hub GM (may also be a player)")
-        #user_datastore.create_role(name="Player", description="Hub Player")
-        #default = user_datastore.create_user(email="sanchitsharma1@gmail.com", password="password")
-        #user_datastore.add_role_to_user(default, admin)
     
     # Configure Compressing
     Compress(app)
