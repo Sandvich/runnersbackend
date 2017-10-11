@@ -90,6 +90,9 @@ backend/bin
 backend/lib64
 backend/include
 pip-selfcheck.json
+pyvenv.cfg
+bin/
+include/
 
 # Spyder project settings
 .spyderproject
@@ -107,3 +110,6 @@ pip-selfcheck.json
 # SQLite
 db.sqlite3
 test.db
+
+# IntelliJ
+.idea/
