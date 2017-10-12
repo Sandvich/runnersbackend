@@ -9,5 +9,5 @@ app = Flask(__name__)
 configure_app(app)
 db.init_app(app)
 
-app.register_blueprint(main, url_prefix='/')
+app.register_blueprint(main, url_prefix='/main')
 app.register_blueprint(admin, url_prefix='/admin')

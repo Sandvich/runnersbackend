@@ -1,4 +1,4 @@
-from flask import Blueprint, request, current_app, Response
+from flask import Blueprint, request, current_app, jsonify
 from flask_security.decorators import roles_required
 from runnershub.data.models import *
 from sqlalchemy import exc
@@ -15,7 +15,7 @@ def get_users():
     for user in User.query.all():
         data[user.email] = {'roles': user.roles}
 
-    return Response(json.dumps(data), status=200, mimetype='application/json')
+    return jsonify(data)
 
 
 @admin.route('/user/create', methods=['POST'])
@@ -42,4 +42,4 @@ def create_user():
         ret['error'] = e
         status = 500
 
-    return Response(json.dumps(ret), status=status, mimetype='application/json')
+    return jsonify(ret)

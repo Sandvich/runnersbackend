@@ -1,9 +1,9 @@
-from flask import Blueprint, Response
-import json
+from flask import Blueprint, jsonify
 
 main = Blueprint('main', __name__)
 
 
-@main.route('/')
+@main.route('/', methods=["GET"])
 def index():
-    return Response(json.dumps({'response':'Welcome!'}), status=200, mimetype='application/json')
+    print("Hello")
+    return jsonify({'response': 'Welcome!'})

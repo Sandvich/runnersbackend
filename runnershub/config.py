@@ -38,9 +38,9 @@ class DevelopmentConfig(BaseConfig):
 class TestingConfig(BaseConfig):
     DEBUG = False
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgresql:5432/puppykit'
-    SQLALCHEMY_DATABASE_USER = 'userJ63'
-    SQLALCHEMY_DATABASE_PASSWORD = 'OOSXfnRKRkDEVMu0'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://server-awesums:5432'
+    SQLALCHEMY_DATABASE_USER = 'hub'
+    SQLALCHEMY_DATABASE_PASSWORD = 'YgdpV0UPGFRjD5io'
     LOGGING_LOCATION = os.getenv('OPENSHIFT_LOG_DIR', '/app/backend.log')
     SECRET_KEY = 'testing-sekrit'
 
