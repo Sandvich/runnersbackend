@@ -1,6 +1,6 @@
-#from runnershub.models import db, Role, User
+from runnershub.models import db, Role, User
 from flask_compress import Compress
-#from flask_security import Security, SQLAlchemyUserDatastore
+from flask_security import Security, SQLAlchemyUserDatastore
 import os
 import logging
 
@@ -26,6 +26,7 @@ class BaseConfig(object):
     SECURITY_TOKEN_AUTHENTICATION_HEADER = 'Auth'
     SECURITY_TOKEN_MAX_AGE = 12 * 60 * 60
     SECURITY_PASSWORD_SALT = "SOMERANDOMSALT"
+    WTF_CSRF_CHECK_DEFAULT = False
 
 
 class DevelopmentConfig(BaseConfig):
@@ -65,8 +66,8 @@ def configure_app(app):
     app.logger.addHandler(handler)
 
     # Configure Security
-#    user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-#    app.security = Security(app, user_datastore)
+    user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+    app.security = Security(app, user_datastore)
 
     # Configure Compressing
     Compress(app)

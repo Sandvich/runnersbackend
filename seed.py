@@ -20,7 +20,7 @@ def create_users(user_datastore):
     user2 = user_datastore.create_user(email="test@test.com",
                                        password=hash_password("password"),
                                        active=True)
-    user_datastore.add_role_to_user(user1, 'Player')
+    user_datastore.add_role_to_user(user2, 'Player')
     user_datastore.commit()
 
 

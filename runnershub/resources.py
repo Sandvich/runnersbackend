@@ -1,9 +1,14 @@
 from flask import url_for, abort
 from flask_restful import Resource, reqparse
-from .models import Character, db
+from .models import Character, db, User
+from flask_login import current_user
+from flask_security.decorators import auth_token_required
+from flask_security.utils import verify_password
 
 
 class CharacterAPI(Resource):
+    decorators = [auth_token_required]
+
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument("name", type=str, location='json')
@@ -13,7 +18,7 @@ class CharacterAPI(Resource):
 
     def get(self, id):
         char = Character.query.filter_by(id=id).one_or_none()
-        if (char is None):
+        if char is None:
             abort(404)
 
         return {"name": char.name, "description": char.description, "PC": char.pc, "URI": url_for("character", id=id)}
@@ -52,6 +57,8 @@ class CharacterAPI(Resource):
 
 
 class CharacterListAPI(Resource):
+    decorators = [auth_token_required]
+
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument("name", type=str, required=True, help="Character name is required", location='json')
@@ -66,7 +73,23 @@ class CharacterListAPI(Resource):
 
     def post(self):
         args = self.reqparse.parse_args()
-        char = Character(args['name'], args['description'], args['pc'])
+        char = Character(args['name'], args['description'], args['pc'], current_user.id)
         db.session.add(char)
         db.session.commit()
         return {"URI": url_for("character", id=char.id)}
+
+
+class LoginAPI(Resource):
+    def __init__(self):
+        self.reqparse = reqparse.RequestParser()
+        self.reqparse.add_argument("email", type=str, required=True, help="Email required!", location='json')
+        self.reqparse.add_argument("password", type=str, required=True, help="Password required!", location='json')
+        super(LoginAPI, self).__init__()
+
+    def post(self):
+        args = self.reqparse.parse_args()
+        user = User.query.filter_by(email=args["email"]).one_or_none()
+        if user is None:
+            abort(404)
+        if verify_password(args["password"], user.password):
+            return {"auth": user.get_auth_token()}
