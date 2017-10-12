@@ -1,6 +1,6 @@
-from runnershub.data.models import db, Role, User
+#from runnershub.models import db, Role, User
 from flask_compress import Compress
-from flask_security import Security, SQLAlchemyUserDatastore
+#from flask_security import Security, SQLAlchemyUserDatastore
 import os
 import logging
 
@@ -65,8 +65,8 @@ def configure_app(app):
     app.logger.addHandler(handler)
 
     # Configure Security
-    user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-    app.security = Security(app, user_datastore)
+#    user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+#    app.security = Security(app, user_datastore)
 
     # Configure Compressing
     Compress(app)

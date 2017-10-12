@@ -1,13 +1,17 @@
 from flask import Flask
-from runnershub.main.controllers import main
-from runnershub.admin.controllers import admin
-from runnershub.config import configure_app
-from runnershub.data.models import db, User, Role
+from .config import configure_app
+from flask_restful import Api
+from .resources import CharacterAPI, CharacterListAPI, db
 
 app = Flask(__name__)
 
+api = Api(app)
 configure_app(app)
 db.init_app(app)
 
-app.register_blueprint(main, url_prefix='/main')
-app.register_blueprint(admin, url_prefix='/admin')
+api.add_resource(CharacterAPI, '/api/character/<int:id>', endpoint='character')
+api.add_resource(CharacterListAPI, '/api/characters', endpoint='characters')
+
+with app.app_context():
+    db.drop_all()
+    db.create_all()

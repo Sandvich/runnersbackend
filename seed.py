@@ -1,5 +1,5 @@
 from runnershub import app
-from runnershub.data.models import *
+from runnershub.models import *
 from flask_security.utils import hash_password
 
 
