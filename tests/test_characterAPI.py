@@ -71,6 +71,15 @@ class TestCharacterAPI(TestCase):
         response = requests.put(newchar, json.dumps({"status": "Dead"}), headers=headers)
         self.assertEqual(response.status_code, 403)
 
+    def test_players_cant_delete_others_characters(self):
+        newchar = BASE_URL + requests.post(BASE_URL + "/api/characters", json.dumps(self.post_data),
+                                           headers=self.headers).json()["URI"]
+        headers = {"Content-Type": "application/json"}
+        headers['auth'] = requests.post(LOGIN_URL, json.dumps(player_login), headers=headers).json()['auth']
+
+        response = requests.delete(newchar, headers=headers)
+        self.assertEqual(response.status_code, 403)
+
     def test_delete(self):
         newchar = requests.post(BASE_URL + "/api/characters", json.dumps(self.post_data), headers=self.headers).json()
         response = requests.delete(BASE_URL + newchar["URI"], headers=self.headers)
