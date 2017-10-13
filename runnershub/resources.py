@@ -32,6 +32,9 @@ class CharacterAPI(Resource):
         char = Character.query.filter_by(id=id).one_or_none()
         if char is None:
             abort(404, "The requested character does not exist")
+        if char.owner is not current_user.id:
+            if current_user.has_role("Player") and not current_user.has_role("GM"):
+                abort(403, "You may only edit your own characters")
 
         args = self.reqparse.parse_args()
 
