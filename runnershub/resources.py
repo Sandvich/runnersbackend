@@ -60,7 +60,7 @@ class CharacterListAPI(Resource):
     decorators = [auth_token_required]
 
     def __init__(self):
-        self.reqparse = reqparse.RequestParser()
+        self.reqparse = reqparse.RequestParser(bundle_errors=True)
         self.reqparse.add_argument("name", type=str, required=True, help="Character name is required", location='json')
         self.reqparse.add_argument("description", type=str, required=True, help="Description required.", location='json')
         self.reqparse.add_argument("pc", type=bool, required=True, help="Please set to True if character is a PC",
@@ -76,7 +76,7 @@ class CharacterListAPI(Resource):
         char = Character(args['name'], args['description'], args['pc'], current_user.id)
         db.session.add(char)
         db.session.commit()
-        return {"URI": url_for("character", id=char.id)}
+        return {"URI": url_for("character", id=char.id)}, 201
 
 
 class LoginAPI(Resource):
