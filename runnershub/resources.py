@@ -82,7 +82,13 @@ class CharacterListAPI(Resource):
 
     def post(self):
         args = self.reqparse.parse_args()
-        if 'status' not in args.keys():
+        if (current_user.has_role("Player")) and (not current_user.has_role("GM")):
+            if not args["pc"]:
+                abort(403, "Players may not make NPCs")
+            if len(Character.query.filter_by(owner=current_user.id, status="Active").all()) > 0:
+                abort(403, "Players may only make one active character")
+
+        if args['status'] is None:
             args['status'] = "Active"
         char = Character(args['name'], args['description'], args['pc'], current_user.id, args['status'])
         db.session.add(char)

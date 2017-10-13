@@ -11,15 +11,16 @@ class TestCharacterListAPI(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        post_data = json.dumps(admin_login)
-        response = requests.post(LOGIN_URL, post_data, headers=cls.headers)
+        response = requests.post(LOGIN_URL, json.dumps(admin_login), headers=cls.headers)
         cls.headers["auth"] = response.json()["auth"]
 
-    def test_get_empty(self):
+    def delete_all_chars(self):
         response = requests.get(self.URL, headers=self.headers)
         for item in response.json():
             requests.delete(BASE_URL + item["URI"], headers=self.headers)
 
+    def test_get_empty(self):
+        self.delete_all_chars()
         response = requests.get(self.URL, headers=self.headers)
 
         self.assertEqual(response.status_code, 200)
@@ -76,8 +77,9 @@ class TestCharacterListAPI(TestCase):
         self.assertNotIn("pc", char)
 
     def test_player_character_count(self):
+        self.delete_all_chars()
         headers = {"Content-Type": "application/json"}
-        headers["auth"] = requests.post(LOGIN_URL, json.dumps(player_login), headers=self.headers).json()['auth']
+        headers["auth"] = requests.post(LOGIN_URL, json.dumps(player_login), headers=headers).json()['auth']
 
         char = {"name": "something", "description": "pie", "pc": True}
         charURL = BASE_URL + requests.post(self.URL, json.dumps(char), headers=headers).json()['URI']
