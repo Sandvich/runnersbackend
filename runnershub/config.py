@@ -27,6 +27,7 @@ class BaseConfig(object):
     SECURITY_TOKEN_MAX_AGE = 12 * 60 * 60
     SECURITY_PASSWORD_SALT = "SOMERANDOMSALT"
     WTF_CSRF_CHECK_DEFAULT = False
+    BUNDLE_ERRORS = True
 
 
 class DevelopmentConfig(BaseConfig):

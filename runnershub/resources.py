@@ -19,14 +19,14 @@ class CharacterAPI(Resource):
     def get(self, id):
         char = Character.query.filter_by(id=id).one_or_none()
         if char is None:
-            abort(404)
+            abort(404, "The requested character does not exist")
 
-        return {"name": char.name, "description": char.description, "PC": char.pc, "URI": url_for("character", id=id)}
+        return {"name": char.name, "description": char.description, "pc": char.pc, "URI": url_for("character", id=id)}
 
     def put(self, id):
         char = Character.query.filter_by(id=id).one_or_none()
         if char is None:
-            abort(404)
+            abort(404, "The requested character does not exist")
 
         args = self.reqparse.parse_args()
 
@@ -50,7 +50,7 @@ class CharacterAPI(Resource):
     def delete(self, id):
         char = Character.query.filter_by(id=id).one_or_none()
         if char is None:
-            abort(404)
+            abort(404, "The requested character does not exist")
         db.session.delete(char)
         db.session.commit()
         return {"status": "Success"}
@@ -60,7 +60,7 @@ class CharacterListAPI(Resource):
     decorators = [auth_token_required]
 
     def __init__(self):
-        self.reqparse = reqparse.RequestParser(bundle_errors=True)
+        self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument("name", type=str, required=True, help="Character name is required", location='json')
         self.reqparse.add_argument("description", type=str, required=True, help="Description required.", location='json')
         self.reqparse.add_argument("pc", type=bool, required=True, help="Please set to True if character is a PC",
@@ -81,7 +81,7 @@ class CharacterListAPI(Resource):
 
 class LoginAPI(Resource):
     def __init__(self):
-        self.reqparse = reqparse.RequestParser(bundle_errors=True)
+        self.reqparse = reqparse.RequestParser()
         self.reqparse.add_argument("email", type=str, required=True, help="Email required!", location='json')
         self.reqparse.add_argument("password", type=str, required=True, help="Password required!", location='json')
         super(LoginAPI, self).__init__()

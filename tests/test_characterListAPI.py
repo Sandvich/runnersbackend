@@ -5,7 +5,7 @@ from .config import *
 
 
 class TestCharacterListAPI(TestCase):
-    """Test creation of characters and """
+    """Test creation of characters and listing all characters"""
     URL = BASE_URL + "/api/characters"
     headers = {"Content-Type": "application/json"}
 
