@@ -1,16 +1,16 @@
 import requests
 import json
 from unittest import TestCase
-from .config import BASE_URL
+from .config import *
 
 
 class TestLoginAPI(TestCase):
     """Test login functionality, including missing information and wrong credentials."""
-    URL = BASE_URL + "api/login"
+    URL = LOGIN_URL
     headers = {"Content-Type": "application/json"}
 
     def test_correct_post(self):
-        post_data = json.dumps({"email": "sanchitsharma1@gmail.com", "password": "password"})
+        post_data = json.dumps(correct_login)
         response = requests.post(self.URL, post_data, headers=self.headers)
         assert response.status_code == 200
         assert "auth" in response.json().keys()
