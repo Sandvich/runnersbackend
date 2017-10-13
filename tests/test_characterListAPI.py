@@ -74,3 +74,24 @@ class TestCharacterListAPI(TestCase):
         self.assertIn("name", char)
         self.assertNotIn("description", char)
         self.assertNotIn("pc", char)
+
+    def test_player_character_count(self):
+        headers = {"Content-Type": "application/json"}
+        headers["auth"] = requests.post(LOGIN_URL, json.dumps(player_login), headers=self.headers).json()['auth']
+
+        char = {"name": "something", "description": "pie", "pc": True}
+        charURL = BASE_URL + requests.post(self.URL, json.dumps(char), headers=headers).json()['URI']
+        response = requests.post(self.URL, json.dumps(char), headers=headers)
+        self.assertEqual(response.status_code, 403)
+
+        requests.put(charURL, json.dumps({"status": "Dead"}), headers=headers)
+        response = requests.post(self.URL, json.dumps(char), headers=headers)
+        self.assertEqual(response.status_code, 201)
+
+    def test_players_cant_make_npcs(self):
+        headers = {"Content-Type": "application/json"}
+        headers["auth"] = requests.post(LOGIN_URL, json.dumps(player_login), headers=self.headers).json()['auth']
+
+        char = {"name": "something", "description": "pie", "pc": False}
+        response = requests.post(self.URL, json.dumps(char), headers=headers)
+        self.assertEqual(response.status_code, 403)
