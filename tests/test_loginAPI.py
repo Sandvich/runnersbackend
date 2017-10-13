@@ -10,7 +10,7 @@ class TestLoginAPI(TestCase):
     headers = {"Content-Type": "application/json"}
 
     def test_correct_post(self):
-        post_data = json.dumps(correct_login)
+        post_data = json.dumps(admin_login)
         response = requests.post(self.URL, post_data, headers=self.headers)
         message = response.json().keys()
 

@@ -10,7 +10,7 @@ class TestCharacterAPI(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        post_data = json.dumps(correct_login)
+        post_data = json.dumps(admin_login)
         response = requests.post(LOGIN_URL, post_data, headers=cls.headers)
         cls.headers["auth"] = response.json()["auth"]
         cls.post_data = {"name": "Serra",
@@ -40,6 +40,7 @@ class TestCharacterAPI(TestCase):
         self.assertIn("description", char)
         self.assertIn("pc", char)
         self.assertIn("URI", char)
+        self.assertIn("status", char)
 
     def test_put_no_change(self):
         response = requests.put(self.URL, json.dumps({}), headers=self.headers)
@@ -67,5 +68,5 @@ class TestCharacterAPI(TestCase):
         message = response.json()
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn("status", message.keys())
-        self.assertEqual(message["status"], "Success")
+        self.assertIn("message", message.keys())
+        self.assertEqual(message["message"], "Success")

@@ -11,7 +11,7 @@ class TestCharacterListAPI(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        post_data = json.dumps(correct_login)
+        post_data = json.dumps(admin_login)
         response = requests.post(LOGIN_URL, post_data, headers=cls.headers)
         cls.headers["auth"] = response.json()["auth"]
 
@@ -38,6 +38,15 @@ class TestCharacterListAPI(TestCase):
         self.assertNotIn("name", char)
         self.assertNotIn("description", char)
         self.assertNotIn("pc", char)
+
+    def test_post_status(self):
+        post_data = json.dumps({"name": "Rook",
+                                "description": "A genderless physical adept who was corrupted by Nyarlathotep.",
+                                "pc": True,
+                                "status": "AWOL"})
+        URL = BASE_URL + requests.post(self.URL, post_data, headers=self.headers).json()["URI"]
+        response = requests.get(URL, headers=self.headers)
+        self.assertEqual("AWOL", response.json()["status"])
 
     def test_post_missing_info(self):
         post_data = json.dumps({})

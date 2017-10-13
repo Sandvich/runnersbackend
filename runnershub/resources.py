@@ -14,6 +14,7 @@ class CharacterAPI(Resource):
         self.reqparse.add_argument("name", type=str, location='json')
         self.reqparse.add_argument("description", type=str, location='json')
         self.reqparse.add_argument("pc", type=bool, location='json')
+        self.reqparse.add_argument("status", type=str, location='json')
         super(CharacterAPI, self).__init__()
 
     def get(self, id):
@@ -21,7 +22,11 @@ class CharacterAPI(Resource):
         if char is None:
             abort(404, "The requested character does not exist")
 
-        return {"name": char.name, "description": char.description, "pc": char.pc, "URI": url_for("character", id=id)}
+        return {"name": char.name,
+                "description": char.description,
+                "pc": char.pc,
+                "URI": url_for("character", id=id),
+                "status": char.status}
 
     def put(self, id):
         char = Character.query.filter_by(id=id).one_or_none()
@@ -40,6 +45,9 @@ class CharacterAPI(Resource):
         if (args["pc"] is not None) and (args["pc"] != char.pc):
             char.pc = args["pc"]
             changed.append("pc")
+        if (args['status'] is not None) and (args['status'] != char.status):
+            char.status = args['status']
+            changed.append('status')
 
         if len(changed) > 0:
             db.session.add(char)
@@ -53,7 +61,7 @@ class CharacterAPI(Resource):
             abort(404, "The requested character does not exist")
         db.session.delete(char)
         db.session.commit()
-        return {"status": "Success"}
+        return {"message": "Success"}
 
 
 class CharacterListAPI(Resource):
@@ -65,6 +73,7 @@ class CharacterListAPI(Resource):
         self.reqparse.add_argument("description", type=str, required=True, help="Description required.", location='json')
         self.reqparse.add_argument("pc", type=bool, required=True, help="Please set to True if character is a PC",
                                    location='json')
+        self.reqparse.add_argument("status", type=str, location='json')
         super(CharacterListAPI, self).__init__()
 
     def get(self):
@@ -73,7 +82,9 @@ class CharacterListAPI(Resource):
 
     def post(self):
         args = self.reqparse.parse_args()
-        char = Character(args['name'], args['description'], args['pc'], current_user.id)
+        if 'status' not in args.keys():
+            args['status'] = "Active"
+        char = Character(args['name'], args['description'], args['pc'], current_user.id, args['status'])
         db.session.add(char)
         db.session.commit()
         return {"URI": url_for("character", id=char.id)}, 201

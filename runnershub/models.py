@@ -7,18 +7,20 @@ db = SQLAlchemy()
 class Character(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80))
-    description = db.Column(db.String(255))
+    description = db.Column(db.Text(convert_unicode=True))
     pc = db.Column(db.Boolean())
+    status = db.Column(db.Enum("Active", "Retired", "Dead", "MIA", "AWOL", "Other"))
     owner = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
-    def __init__(self, name, description, pc, owner):
+    def __init__(self, name, description, pc, owner, status="Active"):
         self.name = name
         self.description = description
         self.pc = pc
         self.owner = owner
+        self.status = status
 
     def __repr__(self):
-        return '<Character ID: %g Name: %r>' % (self.id, self.name)
+        return '<Character: %r Status: %r>' % (self.name, self.status)
 
 
 class Role(db.Model, RoleMixin):
