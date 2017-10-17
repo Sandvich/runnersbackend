@@ -5,12 +5,12 @@ db = SQLAlchemy()
 
 
 class NPC(db.Model):
-    """To be used for storing NPCs - security is who can edit the NPC"""
+    """To be used for storing NPCs - security is who can edit the NPC, using the defined Roles"""
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80))
     description = db.Column(db.Text(convert_unicode=True))
-    status = db.Column(db.Enum("Active", "Retired", "Dead", "MIA", "AWOL", "Other"))
-    security = db.Column(db.Enum("Player", "GM", "Campaign Owner", "Admin"), nullable=False)
+    status = db.Column(db.String(7))
+    security = db.Column(db.Integer, db.ForeignKey("role.id"))
     connection = db.Column(db.Integer(), nullable=False)
 
     def __init__(self, name, description, status, security, connection):

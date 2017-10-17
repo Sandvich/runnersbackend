@@ -5,6 +5,8 @@ from flask_security.utils import hash_password
 
 def create_roles(user_datastore):
     user_datastore.create_role(name="Admin", description="Site Administrator")
+    user_datastore.create_role(name="Campaign Owner", description="The owner of the overall campaign, who gets the "
+                                                                  "final say in plot-related things.")
     user_datastore.create_role(name="GM", description="Hub GM (may also be a player)")
     user_datastore.create_role(name="Player", description="Hub Player")
     user_datastore.commit()
@@ -16,6 +18,7 @@ def create_users(user_datastore):
                                        active=True)
     user_datastore.add_role_to_user(user1, 'Admin')
     user_datastore.add_role_to_user(user1, 'GM')
+    user_datastore.add_role_to_user(user1, 'Campaign Owner')
 
     user2 = user_datastore.create_user(email="test@test.com",
                                        password=hash_password("password"),
