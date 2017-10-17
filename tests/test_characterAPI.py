@@ -4,9 +4,10 @@ from unittest import TestCase
 from .config import *
 
 
-class TestCharacterAPI(TestCase):
+class TestPCAPI(TestCase):
     """Test listing a single character and editing a single character"""
     headers = {"Content-Type": "application/json"}
+    POST_URL = BASE_URL + '/api/pcs'
 
     @classmethod
     def setUpClass(cls):
@@ -15,9 +16,10 @@ class TestCharacterAPI(TestCase):
         cls.headers["auth"] = response.json()["auth"]
         cls.post_data = {"name": "Serra",
                          "description": "Serra is a wolf shifter who flies a helicopter with a massive fuck-off gun.",
-                         "pc": True}
+                         "karma": 15,
+                         "nuyen": 20000}
 
-        response = requests.post(BASE_URL + "/api/characters", json.dumps(cls.post_data), headers=cls.headers)
+        response = requests.post(cls.POST_URL, json.dumps(cls.post_data), headers=cls.headers)
         cls.URL = BASE_URL + response.json()["URI"]
 
     def test_no_char(self):
@@ -38,18 +40,10 @@ class TestCharacterAPI(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("name", char)
         self.assertIn("description", char)
-        self.assertIn("pc", char)
         self.assertIn("URI", char)
         self.assertIn("status", char)
-
-    def test_put_no_change(self):
-        response = requests.put(self.URL, json.dumps({}), headers=self.headers)
-        char = response.json()
-
-        self.assertEqual(response.status_code, 200)
-        self.assertIn("URI", char.keys())
-        self.assertIn("changed", char.keys())
-        self.assertEqual(len(char["changed"]), 0)
+        self.assertIn("karma", char)
+        self.assertIn("nuyen", char)
 
     def test_put(self):
         post_data = {"name": "Serra Skruti"}
@@ -59,11 +53,9 @@ class TestCharacterAPI(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("URI", message.keys())
         self.assertEqual(BASE_URL + message["URI"], self.URL)
-        self.assertIn("changed", message.keys())
-        self.assertEqual(len(message["changed"]), 1)
 
     def test_players_cant_edit_others_characters(self):
-        newchar = BASE_URL + requests.post(BASE_URL + "/api/characters", json.dumps(self.post_data),
+        newchar = BASE_URL + requests.post(self.POST_URL, json.dumps(self.post_data),
                                            headers=self.headers).json()["URI"]
         headers = {"Content-Type": "application/json"}
         headers['auth'] = requests.post(LOGIN_URL, json.dumps(player_login), headers=headers).json()['auth']
@@ -72,7 +64,7 @@ class TestCharacterAPI(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_players_cant_delete_others_characters(self):
-        newchar = BASE_URL + requests.post(BASE_URL + "/api/characters", json.dumps(self.post_data),
+        newchar = BASE_URL + requests.post(self.POST_URL, json.dumps(self.post_data),
                                            headers=self.headers).json()["URI"]
         headers = {"Content-Type": "application/json"}
         headers['auth'] = requests.post(LOGIN_URL, json.dumps(player_login), headers=headers).json()['auth']
@@ -81,7 +73,7 @@ class TestCharacterAPI(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_delete(self):
-        newchar = requests.post(BASE_URL + "/api/characters", json.dumps(self.post_data), headers=self.headers).json()
+        newchar = requests.post(self.POST_URL, json.dumps(self.post_data), headers=self.headers).json()
         response = requests.delete(BASE_URL + newchar["URI"], headers=self.headers)
         message = response.json()
 

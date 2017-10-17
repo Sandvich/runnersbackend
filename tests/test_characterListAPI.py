@@ -4,9 +4,9 @@ from unittest import TestCase
 from .config import *
 
 
-class TestCharacterListAPI(TestCase):
+class TestPCListAPI(TestCase):
     """Test creation of characters and listing all characters"""
-    URL = BASE_URL + "/api/characters"
+    URL = BASE_URL + "/api/pcs"
     headers = {"Content-Type": "application/json"}
 
     @classmethod
@@ -28,9 +28,10 @@ class TestCharacterListAPI(TestCase):
 
     def test_post_working(self):
         post_data = json.dumps({"name": "Serra",
-                                "description": "Serra is a wolf shifter who flies a helicopter with a massive fuck-off \
-                                gun.",
-                                "pc": True})
+                                "description": "Serra is a wolf shifter who flies a helicopter with a massive fuck-off "
+                                "gun.",
+                                "karma": 15,
+                                "nuyen": 20000})
         response = requests.post(self.URL, post_data, headers=self.headers)
         char = response.json().keys()
 
@@ -38,14 +39,17 @@ class TestCharacterListAPI(TestCase):
         self.assertIn("URI", char)
         self.assertNotIn("name", char)
         self.assertNotIn("description", char)
-        self.assertNotIn("pc", char)
+        self.assertNotIn("karma", char)
+        self.assertNotIn("nuyen", char)
 
     def test_post_status(self):
         post_data = json.dumps({"name": "Rook",
                                 "description": "A genderless physical adept who was corrupted by Nyarlathotep.",
-                                "pc": True,
-                                "status": "AWOL"})
-        URL = BASE_URL + requests.post(self.URL, post_data, headers=self.headers).json()["URI"]
+                                "status": "AWOL",
+                                "karma": 20,
+                                "nuyen": 100000})
+        r = requests.post(self.URL, post_data, headers=self.headers).json()
+        URL = BASE_URL + r["URI"]
         response = requests.get(URL, headers=self.headers)
         self.assertEqual("AWOL", response.json()["status"])
 
@@ -57,13 +61,15 @@ class TestCharacterListAPI(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("name", errors)
         self.assertIn("description", errors)
-        self.assertIn("pc", errors)
+        self.assertIn("karma", errors)
+        self.assertIn("nuyen", errors)
 
-    def test_get_characters(self):
+    def test_get_character(self):
         post_data = json.dumps({"name": "Serra",
-                                "description": "Serra is a wolf shifter who flies a helicopter with a massive fuck-off \
-                                gun.",
-                                "pc": True})
+                                "description": "Serra is a wolf shifter who flies a helicopter with a massive fuck-off "
+                                "gun.",
+                                "karma": 15,
+                                "nuyen": 20000})
         requests.post(self.URL, post_data, headers=self.headers)
         response = requests.get(self.URL, headers=self.headers)
         response_json = response.json()
@@ -74,14 +80,15 @@ class TestCharacterListAPI(TestCase):
         self.assertIn("URI", char)
         self.assertIn("name", char)
         self.assertNotIn("description", char)
-        self.assertNotIn("pc", char)
+        self.assertNotIn("karma", char)
+        self.assertNotIn("nuyen", char)
 
     def test_player_character_count(self):
         self.delete_all_chars()
         headers = {"Content-Type": "application/json"}
         headers["auth"] = requests.post(LOGIN_URL, json.dumps(player_login), headers=headers).json()['auth']
 
-        char = {"name": "something", "description": "pie", "pc": True}
+        char = {"name": "something", "description": "pie", "karma": 5, "nuyen": 3}
         charURL = BASE_URL + requests.post(self.URL, json.dumps(char), headers=headers).json()['URI']
         response = requests.post(self.URL, json.dumps(char), headers=headers)
         self.assertEqual(response.status_code, 403)
@@ -90,10 +97,11 @@ class TestCharacterListAPI(TestCase):
         response = requests.post(self.URL, json.dumps(char), headers=headers)
         self.assertEqual(response.status_code, 201)
 
-    def test_players_cant_make_npcs(self):
-        headers = {"Content-Type": "application/json"}
-        headers["auth"] = requests.post(LOGIN_URL, json.dumps(player_login), headers=self.headers).json()['auth']
-
-        char = {"name": "something", "description": "pie", "pc": False}
-        response = requests.post(self.URL, json.dumps(char), headers=headers)
-        self.assertEqual(response.status_code, 403)
+    def test_players_cant_see_characters_they_dont_know(self):
+        pass
+        # headers = {"Content-Type": "application/json"}
+        # headers["auth"] = requests.post(LOGIN_URL, json.dumps(player_login), headers=self.headers).json()['auth']
+        #
+        # char = {"name": "something", "description": "pie", "pc": False}
+        # response = requests.post(self.URL, json.dumps(char), headers=headers)
+        # self.assertEqual(response.status_code, 403)
