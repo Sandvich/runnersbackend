@@ -23,7 +23,7 @@ def check_security(user, sec_level):
     :return: None. Aborts the request if the user does not have permission.
     """
     if sec_level not in ("Player", "GM", "Campaign Owner", "Admin"):
-        abort(404, "Security must be one of: Player, GM, Campaign Owner or Admin")
+        abort(400, "Security must be one of: Player, GM, Campaign Owner or Admin")
 
     security_int = {"Player": 0, "GM": 5, "Campaign Owner": 10, "Admin": 15}
     user_sec = max([security_int[role] for role in user.roles])
@@ -60,17 +60,16 @@ class NPCAPI(Resource):
         args = self.reqparse.parse_args()
         if npc is None:
             abort(404, "The requested character does not exist")
+        check_security(current_user, args['security'])
         check_security(current_user, npc.security)
         if args['status'] is None:
             args['status'] = "Active"
         else:
             verify_status(args['status'])
 
-        npc.name = args["name"]
-        npc.description = args["description"]
-        npc.status = args['status']
-        npc.security = args['security']
-        npc.connection = args['connection']
+        for item in args.keys():
+            if args[item] is not None:
+                setattr(npc, item, args[item])
         db.session.add(npc)
         db.session.commit()
 
@@ -153,11 +152,9 @@ class PCAPI(Resource):
         else:
             verify_status(args['status'])
 
-        char.name = args["name"]
-        char.description = args["description"]
-        char.status = args['status']
-        char.karma = args['karma']
-        char.nuyen = args['nuyen']
+        for item in args.keys():
+            if args[item] is not None:
+                setattr(char, item, args[item])
         db.session.add(char)
         db.session.commit()
 
