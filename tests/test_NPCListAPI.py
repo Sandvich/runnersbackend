@@ -1,6 +1,6 @@
 import requests, json
 from unittest import TestCase
-from .config import *
+from tests.config import *
 
 
 class TestNPCListAPI(TestCase):
