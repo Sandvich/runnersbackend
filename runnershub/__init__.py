@@ -1,9 +1,8 @@
 from flask import Flask
 from .config import configure_app
 from flask_restful import Api
-from .resources import LoginAPI
-from .PC import PCAPI, PCListAPI
-from .NPC import NPCAPI, NPCListAPI
+from .login import LoginAPI
+from .character import PCAPI, PCListAPI, NPCAPI, NPCListAPI
 from .models import db
 
 app = Flask(__name__)
