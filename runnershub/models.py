@@ -52,14 +52,14 @@ class Contact(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     character = db.Column(db.Integer, db.ForeignKey("PC.id"), nullable=False)
     contact = db.Column(db.Integer, db.ForeignKey("NPC.id"), nullable=False)
-    connection = db.Column(db.Integer())
+    security = db.Column(db.String(14), nullable=False)
     loyalty = db.Column(db.Integer())
     chips = db.Column(db.Integer())
 
-    def __init__(self, character, contact, connection=1, loyalty=1, chips=0):
+    def __init__(self, character, contact, security="GM", loyalty=1, chips=0):
         self.character = character
         self.contact = contact
-        self.connection = connection
+        self.security = security
         self.loyalty = loyalty
         self.chips = chips
         super(Contact, self).__init__()
