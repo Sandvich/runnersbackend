@@ -7,18 +7,40 @@ from .character import check_security
 
 
 class ContactAPI(Resource):
+    decorators = [auth_token_required]
+
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument("connection", type=int, location='json')
+        self.reqparse.add_argument("security", type=str, location='json')
         self.reqparse.add_argument("loyalty", type=int, location='json')
         self.reqparse.add_argument("chips", type=int, location='json')
         super(ContactAPI, self).__init__()
 
     def put(self, id):
-        pass
+        contact = Contact.query.filter_by(id=id).one_or_none()
+        args = self.reqparse.parse_args()
+        if contact is None:
+            abort(404, "The requested contact does not exist")
+        check_security(current_user, contact.security, "edit this contact")
+        check_security(current_user, args['security'], "change a contact's security to %s" % args['security'])
+
+        for item in args.keys():
+            if args[item] is not None:
+                setattr(contact, item, args[item])
+        db.session.add(contact)
+        db.session.commit()
+
+        return {"URI": url_for("contact", id=id)}
 
     def delete(self, id):
-        pass
+        contact = Contact.query.filter_by(id=id).one_or_none()
+        if contact is None:
+            abort(404, "Requested contact does not exist!")
+        check_security(current_user, contact.security, "edit this contact")
+
+        db.session.delete(contact)
+        db.session.commit()
+        return {"message": "Success"}
 
 
 class ContactCreateAPI(Resource):
