@@ -2,7 +2,7 @@ from flask import url_for, abort
 from flask_login import current_user
 from flask_restful import Resource, reqparse
 from flask_security.decorators import auth_token_required
-from .models import PC, NPC, db
+from .models import PC, NPC, Contact, db
 
 
 def verify_status(status):
@@ -135,12 +135,25 @@ class PCAPI(Resource):
         if char is None:
             abort(404, "The requested character does not exist")
 
-        return {"name": char.name,
+        retDict = {"name": char.name,
                 "description": char.description,
                 "URI": url_for("pc", id=id),
                 "status": char.status,
                 "karma": char.karma,
                 "nuyen": char.nuyen}
+
+        contacts = Contact.query.filter_by(character=id).all()
+        if len(contacts) >= 1:
+            retDict['contacts'] = []
+            for contact in contacts:
+                npc = NPC.query.filter_by(id=contact.contact).one()
+                retDict['contacts'].append({"name": npc.name,
+                                            "connection": npc.connection,
+                                            "loyalty": contact.loyalty,
+                                            "chips": contact.chips,
+                                            "URI": url_for('npc', id=npc.id)})
+
+        return retDict
 
     def put(self, id):
         char = PC.query.filter_by(id=id).one_or_none()
