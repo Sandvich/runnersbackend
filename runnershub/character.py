@@ -15,11 +15,13 @@ def verify_status(status):
         abort(404, "Status must be one of: Active, Retired, Dead, MIA, AWOL or Other")
 
 
-def check_security(user, sec_level):
+def check_security(user, sec_level, message):
     """
     Checks the security level of the given user against a provided level.
     :param user: User to check security level of.
     :param sec_level: Required minimum security level.
+    :param message: If the request fails, the error message will be "You must have at least <sec_level> access to
+    <message>"
     :return: None. Aborts the request if the user does not have permission.
     """
     if sec_level not in ("Player", "GM", "Campaign Owner", "Admin"):
@@ -28,7 +30,7 @@ def check_security(user, sec_level):
     security_int = {"Player": 0, "GM": 5, "Campaign Owner": 10, "Admin": 15}
     user_sec = max([security_int[role] for role in user.roles])
     if user_sec < security_int[sec_level]:
-        abort(403, "You must have at least %s level access to view or edit this resource." % sec_level)
+        abort(403, "You must have at least %s level access to %s" % (sec_level, message))
 
 
 class NPCAPI(Resource):
@@ -47,7 +49,7 @@ class NPCAPI(Resource):
         npc = NPC.query.filter_by(id=id).one_or_none()
         if npc is None:
             abort(404, "NPC does not exist")
-        check_security(current_user, npc.security)
+        check_security(current_user, npc.security, "view this NPC")
 
         return {"name": npc.name,
                 "description": npc.description,
@@ -60,8 +62,8 @@ class NPCAPI(Resource):
         args = self.reqparse.parse_args()
         if npc is None:
             abort(404, "The requested character does not exist")
-        check_security(current_user, args['security'])
-        check_security(current_user, npc.security)
+        check_security(current_user, npc.security, "edit this NPC")
+        check_security(current_user, args['security'], "change an NPCs security to %s" % args['security'])
         if args['status'] is None:
             args['status'] = "Active"
         else:
@@ -79,7 +81,7 @@ class NPCAPI(Resource):
         npc = NPC.query.filter_by(id=id).one_or_none()
         if npc is None:
             abort(404, "NPC does not exist")
-        check_security(current_user, npc.security)
+        check_security(current_user, npc.security, "delete this NPC")
 
         db.session.delete(npc)
         db.session.commit()
@@ -108,7 +110,7 @@ class NPCListAPI(Resource):
             args['status'] = "Active"
         else:
             verify_status(args['status'])
-        check_security(current_user, args['security'])
+        check_security(current_user, args['security'], "create a new NPC with security %s" % args['security'])
 
         char = NPC(args['name'], args['description'], args['status'], args['security'], args['connection'])
         db.session.add(char)
