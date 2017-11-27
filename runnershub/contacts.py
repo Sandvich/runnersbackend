@@ -22,7 +22,8 @@ class ContactAPI(Resource):
         if contact is None:
             abort(404, "The requested contact does not exist")
         check_security(current_user, contact.security, "edit this contact")
-        check_security(current_user, args['security'], "change a contact's security to %s" % args['security'])
+        if args['security'] is not None:
+            check_security(current_user, args['security'], "change a contact's security to %s" % args['security'])
 
         for item in args.keys():
             if args[item] is not None:
@@ -67,7 +68,7 @@ class ContactCreateAPI(Resource):
         if npc is None:
             abort(404, "Requested NPC does not exist")
 
-        new_contact = Contact(args['character'], args['contact'], args['loyalty'], args['chips'])
+        new_contact = Contact(args['character'], args['contact'], args['security'], args['loyalty'], args['chips'])
         db.session.add(new_contact)
         db.session.commit()
         return {"URI": url_for("contact", id=new_contact.id)}, 201

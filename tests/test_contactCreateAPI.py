@@ -14,10 +14,9 @@ class TestContactCreateAPI(TestCase):
         cls.headers["auth"] = response.json()["auth"]
 
         # Create an NPC and a PC, record their IDs
-        response = requests.post(CREATE_NPC_URL, json.dumps(WORKING_NPC), headers=cls.headers)
-        cls.NPC = response.json()['URI'].split('/')[-1]
-        response = requests.post(CREATE_PC_URL, json.dumps(WORKING_PC), headers=cls.headers)
-        cls.PC = response.json()['URI'].split('/')[-1]
+        cls.NPC = requests.post(CREATE_NPC_URL, json.dumps(WORKING_NPC), headers=cls.headers)\
+            .json()['URI'].split('/')[-1]
+        cls.PC = requests.post(CREATE_PC_URL, json.dumps(WORKING_PC), headers=cls.headers).json()['URI'].split('/')[-1]
 
     def test_invalid_pc(self):
         post_data = json.dumps({"character": 0, "contact": self.NPC, "security": "GM", "loyalty": 3, "chips": 0})
