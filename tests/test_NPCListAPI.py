@@ -6,8 +6,7 @@ from tests.config import *
 class TestNPCListAPI(TestCase):
     """Test the list of NPCs - where it differs from the list of PCs"""
     headers = {"Content-Type": "application/json"}
-    URL = BASE_URL + "/api/npcs"
-    post_data = {"name": "someone", "description": "something", "status": "Active", "security": "GM", "connection": 5}
+    URL = CREATE_NPC_URL
 
     @classmethod
     def setUpClass(cls):
@@ -26,5 +25,5 @@ class TestNPCListAPI(TestCase):
     def test_post_not_allowed(self):
         headers = {"Content-Type": "application/json"}
         headers["auth"] = requests.post(LOGIN_URL, json.dumps(player_login), headers=headers).json()['auth']
-        response = requests.post(self.URL, json.dumps(self.post_data), headers=headers)
+        response = requests.post(self.URL, json.dumps(WORKING_NPC), headers=headers)
         self.assertEqual(response.status_code, 403)

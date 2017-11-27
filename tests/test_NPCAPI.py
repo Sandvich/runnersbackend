@@ -7,8 +7,6 @@ class TestNPCAPI(TestCase):
     """Test the NPC endpoint - where it differs from the PC endpoint"""
     headers = {"Content-Type": "application/json"}
     player_headers = {"Content-Type": "application/json"}
-    post_data = {"name": "someone", "description": "something", "status": "Active", "security": "GM", "connection": 5}
-    POST_URL = BASE_URL + "/api/npcs"
 
     @classmethod
     def setUpClass(cls):
@@ -16,7 +14,7 @@ class TestNPCAPI(TestCase):
         cls.headers["auth"] = response.json()["auth"]
         cls.player_headers['auth'] = requests.post(LOGIN_URL, json.dumps(player_login), headers=cls.headers).json()['auth']
 
-        response = requests.post(cls.POST_URL, json.dumps(cls.post_data), headers=cls.headers)
+        response = requests.post(CREATE_NPC_URL, json.dumps(WORKING_NPC), headers=cls.headers)
         cls.URL = BASE_URL + response.json()["URI"]
 
     def test_invalid_security(self):
@@ -29,7 +27,7 @@ class TestNPCAPI(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_put_not_allowed(self):
-        response = requests.put(self.URL, json.dumps(self.post_data), headers=self.player_headers)
+        response = requests.put(self.URL, json.dumps(WORKING_NPC), headers=self.player_headers)
         self.assertEqual(response.status_code, 403)
 
     def test_delete_not_allowed(self):

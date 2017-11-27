@@ -6,19 +6,14 @@ from tests.config import *
 class TestPCAPI(TestCase):
     """Test listing a single character and editing a single character"""
     headers = {"Content-Type": "application/json"}
-    POST_URL = BASE_URL + '/api/pcs'
 
     @classmethod
     def setUpClass(cls):
         post_data = json.dumps(admin_login)
         response = requests.post(LOGIN_URL, post_data, headers=cls.headers)
         cls.headers["auth"] = response.json()["auth"]
-        cls.post_data = {"name": "Serra",
-                         "description": "Serra is a wolf shifter who flies a helicopter with a massive fuck-off gun.",
-                         "karma": 15,
-                         "nuyen": 20000}
 
-        response = requests.post(cls.POST_URL, json.dumps(cls.post_data), headers=cls.headers)
+        response = requests.post(CREATE_PC_URL, json.dumps(WORKING_PC), headers=cls.headers)
         cls.URL = BASE_URL + response.json()["URI"]
 
     def test_no_char(self):
@@ -54,7 +49,7 @@ class TestPCAPI(TestCase):
         self.assertEqual(BASE_URL + message["URI"], self.URL)
 
     def test_players_cant_edit_others_characters(self):
-        newchar = BASE_URL + requests.post(self.POST_URL, json.dumps(self.post_data),
+        newchar = BASE_URL + requests.post(CREATE_PC_URL, json.dumps(WORKING_PC),
                                            headers=self.headers).json()["URI"]
         headers = {"Content-Type": "application/json"}
         headers['auth'] = requests.post(LOGIN_URL, json.dumps(player_login), headers=headers).json()['auth']
@@ -63,7 +58,7 @@ class TestPCAPI(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_players_cant_delete_others_characters(self):
-        newchar = BASE_URL + requests.post(self.POST_URL, json.dumps(self.post_data),
+        newchar = BASE_URL + requests.post(CREATE_PC_URL, json.dumps(WORKING_PC),
                                            headers=self.headers).json()["URI"]
         headers = {"Content-Type": "application/json"}
         headers['auth'] = requests.post(LOGIN_URL, json.dumps(player_login), headers=headers).json()['auth']
@@ -72,7 +67,7 @@ class TestPCAPI(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_delete(self):
-        newchar = requests.post(self.POST_URL, json.dumps(self.post_data), headers=self.headers).json()
+        newchar = requests.post(CREATE_PC_URL, json.dumps(WORKING_PC), headers=self.headers).json()
         response = requests.delete(BASE_URL + newchar["URI"], headers=self.headers)
         message = response.json()
 

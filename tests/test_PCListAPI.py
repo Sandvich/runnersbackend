@@ -5,7 +5,7 @@ from tests.config import *
 
 class TestPCListAPI(TestCase):
     """Test creation of characters and listing all characters"""
-    URL = BASE_URL + "/api/pcs"
+    URL = CREATE_PC_URL
     headers = {"Content-Type": "application/json"}
 
     @classmethod
@@ -26,11 +26,7 @@ class TestPCListAPI(TestCase):
         self.assertEqual(len(response.json()), 0)
 
     def test_post_working(self):
-        post_data = json.dumps({"name": "Serra",
-                                "description": "Serra is a wolf shifter who flies a helicopter with a massive fuck-off "
-                                "gun.",
-                                "karma": 15,
-                                "nuyen": 20000})
+        post_data = json.dumps(WORKING_PC)
         response = requests.post(self.URL, post_data, headers=self.headers)
         char = response.json().keys()
 
@@ -64,11 +60,7 @@ class TestPCListAPI(TestCase):
         self.assertIn("nuyen", errors)
 
     def test_get_character(self):
-        post_data = json.dumps({"name": "Serra",
-                                "description": "Serra is a wolf shifter who flies a helicopter with a massive fuck-off "
-                                "gun.",
-                                "karma": 15,
-                                "nuyen": 20000})
+        post_data = json.dumps(WORKING_PC)
         requests.post(self.URL, post_data, headers=self.headers)
         response = requests.get(self.URL, headers=self.headers)
         response_json = response.json()

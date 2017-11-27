@@ -48,8 +48,8 @@ class ContactCreateAPI(Resource):
 
     def __init__(self):
         self.reqparse = reqparse.RequestParser()
-        self.reqparse.add_argument("pc", type=int, required=True, location='json')
-        self.reqparse.add_argument("npc", type=int, required=True, location='json')
+        self.reqparse.add_argument("character", type=int, required=True, location='json')
+        self.reqparse.add_argument("contact", type=int, required=True, location='json')
         self.reqparse.add_argument("security", type=str, required=True, location='json')
         self.reqparse.add_argument("loyalty", type=int, required=True, location='json')
         self.reqparse.add_argument("chips", type=int, required=True, location='json')
@@ -60,14 +60,14 @@ class ContactCreateAPI(Resource):
         check_security(current_user, "GM", "create a contact")
         check_security(current_user, args['security'], "create a contact with security %s" % args['security'])
 
-        pc = PC.query.filter_by(id=args['pc']).one_or_none()
+        pc = PC.query.filter_by(id=args['character']).one_or_none()
         if pc is None:
             abort(404, "Requested PC does not exist")
-        npc = NPC.query.filter_by(id=args['npc']).one_or_none()
+        npc = NPC.query.filter_by(id=args['contact']).one_or_none()
         if npc is None:
             abort(404, "Requested NPC does not exist")
 
-        new_contact = Contact(args['pc'], args['npc'], args['loyalty'], args['chips'])
+        new_contact = Contact(args['character'], args['contact'], args['loyalty'], args['chips'])
         db.session.add(new_contact)
         db.session.commit()
         return {"URI": url_for("contact", id=new_contact.id)}, 201

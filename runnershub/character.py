@@ -142,6 +142,7 @@ class PCAPI(Resource):
                 "karma": char.karma,
                 "nuyen": char.nuyen}
 
+        # Checks if the character has contacts, and if so returns some basic information about them too.
         contacts = db.session.query(Contact, NPC).filter_by(character=char.id).join(NPC, Contact.contact==NPC.id).all()
         if len(contacts) >= 1:
             retDict['contacts'] = []
