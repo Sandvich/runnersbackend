@@ -65,8 +65,8 @@ class Contact(db.Model):
         super(Contact, self).__init__()
 
     def __repr__(self):
-        return '<Contact %r and %r>' % (PC.query.filter_by(id=self.character.id).one().name,
-                                        NPC.query.filter_by(id=self.contact.id).one().name)
+        return '<Contact %r and %r>' % (PC.query.filter_by(id=self.character).one().name,
+                                        NPC.query.filter_by(id=self.contact).one().name)
 
 
 # Account stuff below

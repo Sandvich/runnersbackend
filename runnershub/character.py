@@ -142,16 +142,15 @@ class PCAPI(Resource):
                 "karma": char.karma,
                 "nuyen": char.nuyen}
 
-        contacts = Contact.query.filter_by(character=id).all()
+        contacts = db.session.query(Contact, NPC).filter_by(character=char.id).join(NPC, Contact.contact==NPC.id).all()
         if len(contacts) >= 1:
             retDict['contacts'] = []
-            for contact in contacts:
-                npc = NPC.query.filter_by(id=contact.contact).one()
-                retDict['contacts'].append({"name": npc.name,
-                                            "connection": npc.connection,
-                                            "loyalty": contact.loyalty,
-                                            "chips": contact.chips,
-                                            "URI": url_for('npc', id=npc.id)})
+            for result in contacts:
+                retDict['contacts'].append({"name": result.NPC.name,
+                                            "connection": result.NPC.connection,
+                                            "loyalty": result.Contact.loyalty,
+                                            "chips": result.Contact.chips,
+                                            "URI": url_for('npc', id=result.NPC.id)})
 
         return retDict
 
